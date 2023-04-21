@@ -7,6 +7,7 @@ const layouts = require("express-ejs-layouts");
 const pw_auth_router = require('./routes/pwauth')
 const toDoRouter = require('./routes/todo');
 const weatherRouter = require('./routes/weather');
+const transactionRouter = require('./routes/transaction');
 
 const User = require('./models/User');
 
@@ -14,17 +15,17 @@ const User = require('./models/User');
 /*  Connecting to a Mongo Database Server   */
 /* **************************************** */
 const mongodb_URI = process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017/pwdemo';
-console.log('MONGODB_URI=',process.env.MONGODB_URI);
+console.log('MONGODB_URI=', process.env.MONGODB_URI);
 
-const mongoose = require( 'mongoose' );
+const mongoose = require('mongoose');
 
-mongoose.connect( mongodb_URI);
+mongoose.connect(mongodb_URI);
 
 const db = mongoose.connection;
 
 
 db.on('error', console.error.bind(console, 'connection error:'));
-db.once('open', function() {
+db.once('open', function () {
   console.log("we are connected!!!")
 });
 
@@ -42,7 +43,7 @@ const store = new MongoDBStore({
 });
 
 // Catch errors                                                                      
-store.on('error', function(error) {
+store.on('error', function (error) {
   console.log(error);
 });
 
@@ -95,27 +96,28 @@ app.use(pw_auth_router)
 
 app.use(layouts);
 
-app.get('/', (req,res,next) => {
+app.get('/', (req, res, next) => {
   res.render('index');
 })
 
-app.get('/about', 
+app.get('/about',
   isLoggedIn,
-  (req,res,next) => {
+  (req, res, next) => {
     res.render('about');
   }
 )
 
 app.use(toDoRouter);
 app.use(weatherRouter);
+app.use(transactionRouter);
 
 // catch 404 and forward to error handler
-app.use(function(req, res, next) {
+app.use(function (req, res, next) {
   next(createError(404));
 });
 
 // error handler
-app.use(function(err, req, res, next) {
+app.use(function (err, req, res, next) {
   // set locals, only providing error in development
   res.locals.message = err.message;
   res.locals.error = req.app.get('env') === 'development' ? err : {};
